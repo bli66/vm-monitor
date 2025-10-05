@@ -1,51 +1,72 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 const USER_POOL = [
-  { id: "u1", name: "A" },
-  { id: "u2", name: "B" },
-  { id: "u3", name: "C" },
-  { id: "u4", name: "D" },
-  { id: "u5", name: "E" },
+  { id: "u1", name: "Alice" },
+  { id: "u2", name: "Bob" },
+  { id: "u3", name: "Carol" },
+  { id: "u4", name: "Dave" },
+  { id: "u5", name: "Eve" },
 ];
 
 export default function VMMonitorSimple() {
-  const [status, setStatus] = useState(
-    Object.fromEntries(USER_POOL.map((u) => [u.id, false]))
-  );
+  const [status, setStatus] = useState({});
+  const [loading, setLoading] = useState(true);
 
-  const toggle = (id) => {
-    setStatus((prev) => ({ ...prev, [id]: !prev[id] }));
+  const fetchState = async () => {
+    try {
+      const res = await fetch("/api/state");
+      const data = await res.json();
+      setStatus(data);
+      setLoading(false);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  useEffect(() => {
+    fetchState();
+    const timer = setInterval(fetchState, 3000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const toggle = async (id) => {
+    try {
+      await fetch("/api/toggle", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
+      fetchState();
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const onlineCount = Object.values(status).filter(Boolean).length;
+  if (loading) return <div style={{ padding: 20 }}>Loading...</div>;
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        backgroundColor: "#f8fafc",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        fontFamily: "Arial, sans-serif",
-      }}
-    >
-      <div
-        style={{
-          width: "300px",
-          backgroundColor: "white",
-          borderRadius: "12px",
-          boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
-          padding: "20px",
-          textAlign: "center",
-        }}
-      >
+    <div style={{
+      minHeight: "100vh",
+      backgroundColor: "#f8fafc",
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+      fontFamily: "Arial, sans-serif",
+    }}>
+      <div style={{
+        width: "300px",
+        backgroundColor: "white",
+        borderRadius: "12px",
+        boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
+        padding: "20px",
+        textAlign: "center",
+      }}>
         <h2 style={{ marginBottom: "16px" }}>VM User Monitor</h2>
         <p style={{ fontSize: "14px", color: "#555", marginBottom: "16px" }}>
           Currently Online: {onlineCount} / {USER_POOL.length}
         </p>
-
         {USER_POOL.map((u) => (
           <button
             key={u.id}
