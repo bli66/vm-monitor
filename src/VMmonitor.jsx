@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 
 const USER_POOL = [
-  { id: "u1", name: "Alice" },
-  { id: "u2", name: "Bob" },
-  { id: "u3", name: "Carol" },
-  { id: "u4", name: "Dave" },
-  { id: "u5", name: "Eve" },
+  { id: "u1", name: "Avocado" },
+  { id: "u2", name: "Blueberry" },
+  { id: "u3", name: "Cranberry" },
+  { id: "u4", name: "Dewberry" },
+  { id: "u5", name: "Elderberry" },
 ];
 
 export default function VMMonitorSimple() {
